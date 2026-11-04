@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: hkrroe-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DATABASE_URL
+        fromDatabase:
+          name: hkrroe-db
+          property: connectionString
+      - key: CORS_ORIGINS
+        value: https://${{hkrroe-frontend.host}}
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: VISITOR_HASH_SECRET
+        generateValue: true
+
+  - type: web
+    name: hkrroe-frontend
+    runtime: node
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: NEXT_PUBLIC_API_URL
+        value: https://${{hkrroe-api.host}}
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://${{hkrroe-frontend.host}}
+
+databases:
+  - name: hkrroe-db
+    plan: free
+    databaseName: hkrroe
+    user: hkrroe
