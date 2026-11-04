@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.db
+node_modules/
+.next/
+out/
+.DS_Store
+.env.local
+*.log
+frontend/.next/
+backend/tests/test_hkrroe.db
